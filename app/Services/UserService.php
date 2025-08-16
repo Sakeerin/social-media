@@ -31,9 +31,9 @@ class UserService
             "description" => "coolest"
         ]);
 
-        Mail::to($user)->send(new ConfirmEmail(
-            URL::signedRoute("confirmEmail", ["token" => $user->id])
-        ));
+        // Mail::to($user)->send(new ConfirmEmail(
+        //     URL::signedRoute("confirmEmail", ["token" => $user->id])
+        // ));
 
         return true;
     }

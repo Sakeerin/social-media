@@ -11,23 +11,26 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::prefix('/posts')->group(function () {
-    Route::get('/', [PostController::class, 'getPost']);
-    Route::post('/', [PostController::class, 'createPost']);
-    // Route::get('/{id}', [PostController::class, 'getPostById']);
-    Route::put('/{id}', [PostController::class, 'updatePost'])->whereUuid('id');
-    Route::delete('/{id}', [PostController::class, 'deletePost']);
-});
+// Route::prefix('/posts')->group(function () {
+//     Route::get('/', [PostController::class, 'getPost']);
+//     Route::post('/', [PostController::class, 'createPost']);
+//     Route::put('/{id}', [PostController::class, 'updatePost'])->whereUuid('id');
+//     Route::delete('/{id}', [PostController::class, 'deletePost']);
+// });
 
-// Route::apiResource('posts',PostController::class)->except('destroy');
+// Route::prefix('/likes')->group(function() {
+//     Route::post('/', [LikeController::class, 'createLike']);
+//     Route::delete('/{id}', [LikeController::class, 'deleteLike']);
+// });
 
-Route::post('/likes', [LikeController::class, 'createLike']);
-Route::delete('/likes/{id}', [LikeController::class, 'deleteLike']);
+// Route::prefix('/comments')->group(function(){
+//     Route::put('/{id}', [CommentController::class, 'updateComment']);
+//     Route::delete('/{id}', [CommentController::class, 'deleteComment']);
+// });
 
-Route::put('/comments/{id}', [CommentController::class, 'updateComment']);
-Route::delete('/comments/{id}', [CommentController::class, 'deleteComment']);
+// Route::prefix('/follows')->group(function(){
+//     Route::get('/', [FollowController::class, 'getFollows']);
+//     Route::post('/', [FollowController::class, 'createFollow']);
+//     Route::put('/{id}', [FollowController::class, 'deleteFollow']);
+// });
 
-Route::get('/follows', [FollowController::class, 'getFollows']);
-Route::post('/follows', [FollowController::class, 'createFollow']);
-Route::put('/follows/{id}', [FollowController::class, 'deleteFollow']);
-// Route::delete('/follows/{id}', [FollowController::class, 'deleteFollow']);
