@@ -43,6 +43,21 @@ class PostService
         );
     }
 
+    public function createPost(string $userId, string $caption, string | null $image): PostResponse
+    {
+        return new PostResponse(
+            post: Post::create([
+                "caption" => $caption,
+                "user_id" => $userId,
+                "image" => $image,
+            ]),
+            comments: 0,
+            liked: null,
+            likes: 0,
+            author: $this->userService->getUserMetaById($userId)
+        );
+    }
+
     public function updatePost(string $userId, string $id, string $caption): Post | null
     {
         $post = Post::find([
