@@ -12,8 +12,8 @@ class Post extends Model
 {
     protected $fillable = [
             'caption', 
-            // "user_id", 
-            // "image"
+            "user_id", 
+            "image"
         ];
 
     use HasUuids;
