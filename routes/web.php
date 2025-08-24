@@ -9,12 +9,14 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
 });
 
 Route::prefix("/auth")->group(function () {
     Route::post("/login", [UserController::class, 'login']);
     Route::post("/register", [UserController::class, 'register']);
+    Route::post(("/logout"), [UserController::class, 'logout']);
+    Route::get("/user", [UserController::class, 'getUserDetails']);
 
     Route::get('/redirect/google',[GoogleAuthController::class, 'redirect']);
     Route::get('/callback/google',[GoogleAuthController::class, 'callback']);
