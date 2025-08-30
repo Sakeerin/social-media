@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Http\Responses\PaginatedResponse;
+use App\Http\Responses\PostResponse;
 use App\Models\Post;
 
 class PostService
