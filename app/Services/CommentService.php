@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Redis;
 use App\Http\Responses\CommentResponse;
 use App\Models\Comment;
-use Illuminate\Support\Facades\Redis;
+
 
 class CommentService
 {

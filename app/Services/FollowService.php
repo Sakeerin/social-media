@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Follow;
 use Illuminate\Support\Facades\Redis;
+use App\Models\Follow;
+
 
 class FollowService
 {

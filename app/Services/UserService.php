@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Redis;
 use App\Http\Responses\UserMeta;
 use App\Mail\ConfirmEmail;
 use App\Mail\ResetPassword;
@@ -9,7 +10,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\URL;
 
 class UserService
@@ -31,9 +31,9 @@ class UserService
             "description" => "coolest"
         ]);
 
-        // Mail::to($user)->send(new ConfirmEmail(
-        //     URL::signedRoute("confirmEmail", ["token" => $user->id])
-        // ));
+        Mail::to($user)->send(new ConfirmEmail(
+            URL::signedRoute("confirmEmail", ["token" => $user->id])
+        ));
 
         return true;
     }

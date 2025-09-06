@@ -7,7 +7,7 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class UserController extends Controller
+class UserController
 {
     public function __construct(protected UserService $userService) {}
 
@@ -134,7 +134,7 @@ class UserController extends Controller
 
         return response()->json([
             "email" => $user->email,
-            "username" => $user->username,
+            "username" => $user->name,
             "avatar" => $user->avatar
         ]);
     }

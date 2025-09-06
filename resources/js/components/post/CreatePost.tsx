@@ -16,6 +16,8 @@ function CreatePost({ onPostCreated }: { onPostCreated: (p: PostResponse) => voi
     const [caption, setCaption] = useState("");
 
     const auth = useContext(authContext);
+    console.log(auth);
+    
 
     function onFileClose(file: File | null) {
         setImageUploadModal(false);

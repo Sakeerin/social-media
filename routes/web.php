@@ -6,23 +6,32 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('index');
 });
 
+// Route::get('/redis-test', function () {
+//     Redis::set('framework', 'Laravel 11');
+//     return Redis::get('framework'); // should return "Laravel 11"
+// });
+
 Route::prefix("/auth")->group(function () {
     Route::post("/login", [UserController::class, 'login']);
     Route::post("/register", [UserController::class, 'register']);
-    Route::post(("/logout"), [UserController::class, 'logout']);
-    Route::get("/user", [UserController::class, 'getUserDetails']);
+
+    Route::post("/initReset", [UserController::class, 'initPasswordReset']);
+    Route::get('/reset', [UserController::class, 'resetPasswordView'])->name("resetPasswordView");
+    Route::get('/reset', [UserController::class, 'resetPassword']);
+
+    Route::get("/confirm", [UserController::class, 'confirmEmail'])->name("confirmEmail");
 
     Route::get('/redirect/google',[GoogleAuthController::class, 'redirect']);
     Route::get('/callback/google',[GoogleAuthController::class, 'callback']);
 
     Route::middleware("auth:sanctum")->group(function () {
-
         Route::post("/logout", [UserController::class, 'logout']);
         Route::get("/user", [UserController::class, 'getUserDetails']);
         Route::post("/password", [UserController::class, 'setPassword']);

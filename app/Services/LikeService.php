@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Like;
 use Illuminate\Support\Facades\Redis;
+use App\Models\Like;
 
 class LikeService
 {
