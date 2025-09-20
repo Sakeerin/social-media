@@ -47,6 +47,7 @@ class PostService
 
     public function createPost(string $userId, string $caption, string | null $image): PostResponse
     {
+        $userId = $userId ?? '9fc3580f-51f3-44e9-b67d-1159a859c97a';
         return new PostResponse(
             post: Post::create([
                 "caption" => $caption,

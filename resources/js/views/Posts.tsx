@@ -4,7 +4,8 @@ import PostList from "../components/post/PostList";
 
 function Posts() {
     const auth = useContext(authContext);
-
+    console.log('Post ',auth.authenticatedUser);
+    
     return (
         <div className="main-center">
             <PostList canPost={auth.authenticatedUser != null} />

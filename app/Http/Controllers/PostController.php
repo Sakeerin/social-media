@@ -7,12 +7,13 @@ use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PostController extends Controller
+class PostController
 {
+    public function __construct(protected PostService $postService) {}
 
     public function getPosts(Request $req)
     {
-        $user = $req->query("user");
+        $user = $req->query("user") ?? 'Demo';
         return response()->json($this->postService->getPosts(Auth::id(), $user));
     }
 
@@ -31,5 +32,5 @@ class PostController extends Controller
 
         return response()->json($this->postService->createPost(userId: Auth::id(), caption: $caption, image: $image));
     }
-    public function __construct(protected PostService $postService) {}
+    
 }

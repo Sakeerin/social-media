@@ -19,29 +19,45 @@ class LikeService
             return null;
         }
 
-        // Increment like count for this post.
-        Redis::incr($this->getLikeCountCacheKey($postId));
         $like = Like::create([
             "user_id" => $userId,
             "post_id" => $postId,
         ]);
 
-        // User now likes this post.
-        Redis::set($this->getLikeUsersCacheKey($postId, $userId), $like->id);
+        try {
+            // Increment like count for this post.
+            Redis::incr($this->getLikeCountCacheKey($postId));
+            // User now likes this post.
+            Redis::set($this->getLikeUsersCacheKey($postId, $userId), $like->id);
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for like caching: ' . $e->getMessage());
+        }
         return $like;
     }
 
     public function getLikeCount(string $postId): int
     {
         $cacheKey = $this->getLikeCountCacheKey($postId);
-        $cached = Redis::get($cacheKey);
-        if ($cached != null) {
-            return $cached;
+        
+        try {
+            $cached = Redis::get($cacheKey);
+            if ($cached != null) {
+                return $cached;
+            }
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for like count caching: ' . $e->getMessage());
         }
 
         // Fetch actual like count, and cache it.
         $likeCount = Like::where("post_id", $postId)->count();
-        Redis::set($cacheKey, $likeCount);
+        
+        try {
+            Redis::set($cacheKey, $likeCount);
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
 
         return $likeCount;
     }
@@ -49,9 +65,15 @@ class LikeService
     public function userLikesPost(string $userId, string $postId): string | null
     {
         $cacheKey = $this->getLikeUsersCacheKey($postId, $userId);
-        $cached = Redis::get($cacheKey);
-        if ($cached != null) {
-            return $cached == "null" ? null : $cached;
+        
+        try {
+            $cached = Redis::get($cacheKey);
+            if ($cached != null) {
+                return $cached == "null" ? null : $cached;
+            }
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for user like caching: ' . $e->getMessage());
         }
 
         // Fetch if user likes post and cache it.
@@ -60,7 +82,12 @@ class LikeService
             ->first();
 
         $likeId = $like != null ? $like->id : null;
-        Redis::set($cacheKey, $likeId != null ? $likeId : "null");
+        
+        try {
+            Redis::set($cacheKey, $likeId != null ? $likeId : "null");
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
 
         return $likeId;
     }
@@ -77,8 +104,15 @@ class LikeService
         }
 
         $like->delete();
-        Redis::set($this->getLikeUsersCacheKey($like->post_id, $userId), "null");
-        Redis::decr($this->getLikeCountCacheKey($like->post_id));
+        
+        try {
+            Redis::set($this->getLikeUsersCacheKey($like->post_id, $userId), "null");
+            Redis::decr($this->getLikeCountCacheKey($like->post_id));
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for like deletion caching: ' . $e->getMessage());
+        }
+        
         return true;
     }
 

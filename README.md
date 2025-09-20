@@ -1,66 +1,275 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Social Media Laravel Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern social media application built with Laravel 11 and React, featuring user authentication, posts, comments, likes, and following system.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **User Authentication**: Email/password and Google OAuth integration
+- **Posts**: Create, view, and manage social media posts with images
+- **Comments**: Add comments to posts
+- **Likes**: Like and unlike posts
+- **Following System**: Follow and unfollow other users
+- **User Profiles**: User profiles with avatars and descriptions
+- **Modern UI**: Built with React and Tailwind CSS
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Backend
+- Laravel 11
+- PHP 8.2+
+- SQLite (default) / MySQL / PostgreSQL
+- Laravel Sanctum (API authentication)
+- Laravel Socialite (OAuth)
 
-## Learning Laravel
+### Frontend
+- React 19
+- TypeScript
+- Tailwind CSS
+- Vite (build tool)
+- Wouter (routing)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Prerequisites
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.2 or higher
+- Composer
+- Node.js 18+ and npm
+- SQLite (or MySQL/PostgreSQL if preferred)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Quick Setup
 
-## Laravel Sponsors
+### Windows
+Run the setup script:
+```bash
+setup.bat
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Linux/macOS
+Make the script executable and run:
+```bash
+chmod +x setup.sh
+./setup.sh
+```
 
-### Premium Partners
+## Manual Setup
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+If you prefer to set up manually or the scripts don't work:
+
+### 1. Install Dependencies
+```bash
+# Install PHP dependencies
+composer install
+
+# Install Node.js dependencies
+npm install
+```
+
+### 2. Environment Configuration
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+### 3. Database Setup
+```bash
+# Create SQLite database file (if using SQLite)
+touch database/database.sqlite
+
+# Run migrations
+php artisan migrate
+
+# Seed database with sample data
+php artisan db:seed
+```
+
+### 4. Build Frontend Assets
+```bash
+# Build for production
+npm run build
+
+# Or run in development mode
+npm run dev
+```
+
+### 5. Start the Server
+```bash
+php artisan serve
+```
+
+The application will be available at `http://localhost:8000`
+
+## Sample Data
+
+The seeder creates the following test users:
+- **john@example.com** (password: password) - Software developer
+- **jane@example.com** (password: password) - Photographer
+- **mike@example.com** (password: password) - Fitness trainer
+- **sarah@example.com** (password: password) - Artist
+- **alex@example.com** (password: password) - Entrepreneur
+
+Plus 15 additional random users with posts, comments, likes, and follows.
+
+## Database Structure
+
+### Users Table
+- id (UUID)
+- name
+- email
+- password
+- description
+- auth_type (password/google)
+- avatar
+- email_verified_at
+- timestamps
+
+### Posts Table
+- id (UUID)
+- user_id (foreign key)
+- caption
+- image
+- timestamps
+
+### Comments Table
+- id (UUID)
+- post_id (foreign key)
+- user_id (foreign key)
+- content
+- timestamps
+
+### Likes Table
+- id (UUID)
+- post_id (foreign key)
+- user_id (foreign key)
+- timestamps
+
+### Follows Table
+- id (UUID)
+- from_id (foreign key to users)
+- to_id (foreign key to users)
+- timestamps
+
+## API Endpoints
+
+The application provides a RESTful API with the following main endpoints:
+
+### Authentication
+- `POST /api/register` - User registration
+- `POST /api/login` - User login
+- `POST /api/logout` - User logout
+- `GET /api/user` - Get current user
+
+### Posts
+- `GET /api/posts` - Get all posts
+- `POST /api/posts` - Create a new post
+- `GET /api/posts/{id}` - Get specific post
+- `PUT /api/posts/{id}` - Update post
+- `DELETE /api/posts/{id}` - Delete post
+
+### Comments
+- `GET /api/posts/{postId}/comments` - Get post comments
+- `POST /api/posts/{postId}/comments` - Add comment to post
+- `DELETE /api/comments/{id}` - Delete comment
+
+### Likes
+- `POST /api/posts/{postId}/like` - Like/unlike post
+
+### Follows
+- `POST /api/users/{userId}/follow` - Follow/unfollow user
+- `GET /api/users/{userId}/followers` - Get user followers
+- `GET /api/users/{userId}/following` - Get users being followed
+
+## Development
+
+### Running in Development Mode
+```bash
+# Start Laravel server
+php artisan serve
+
+# In another terminal, start Vite dev server
+npm run dev
+```
+
+### Database Commands
+```bash
+# Reset and seed database
+php artisan migrate:fresh --seed
+
+# Run specific seeder
+php artisan db:seed --class=UserSeeder
+
+# Create new migration
+php artisan make:migration create_table_name
+
+# Create new model with migration
+php artisan make:model ModelName -m
+```
+
+### Frontend Development
+```bash
+# Watch for changes and rebuild
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Configuration
+
+### Database
+Edit `.env` file to change database configuration:
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+For MySQL:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=social_media
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### Google OAuth (Optional)
+Add your Google OAuth credentials to `.env`:
+```env
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Permission denied on setup script**
+   ```bash
+   chmod +x setup.sh
+   ```
+
+2. **Database connection error**
+   - Ensure database file exists: `touch database/database.sqlite`
+   - Check database configuration in `.env`
+
+3. **Frontend build errors**
+   - Clear node_modules: `rm -rf node_modules && npm install`
+   - Check Node.js version (requires 18+)
+
+4. **Migration errors**
+   - Reset database: `php artisan migrate:fresh --seed`
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and ensure everything works
+5. Submit a pull request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

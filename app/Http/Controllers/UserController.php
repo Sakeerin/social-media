@@ -25,7 +25,7 @@ class UserController
 
         $req->session()->regenerate();
 
-        return response('');
+        return response()->json($req->user());
     }
 
     public function confirmEmail(Request $req)
@@ -188,7 +188,7 @@ class UserController
 
         return response()->json(new ProfileResponse(
             id: $user->id,
-            username: $user->username,
+            username: $user->name,
             name: $user->name,
             avatar: $user->avatar,
             description: $user->description,

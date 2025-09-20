@@ -29,6 +29,8 @@ function CreatePost({ onPostCreated }: { onPostCreated: (p: PostResponse) => voi
 
     async function post() {
         let post = await postService.createPost(caption, imageFile);
+        console.log('set post',post);
+        
 
         setImageFile(null);
         setCaption("");

@@ -19,7 +19,7 @@ class GoogleAuthController
     public function callback()
     {
         $user = Socialite::driver($this::PROVIDER_NAME)->user();
-        dump($user);
+        // dump($user);
         $email = $user->getEmail();
         $avatar = $user->getAvatar();
 

@@ -134,8 +134,13 @@ class UserService
 
     private function updateCachedMeta(User $user)
     {
-        $meta = $this->userMetaFromUser($user);
-        Redis::set($this->userMetaCacheKey($user->id), json_encode($meta->toJson()));
+        try {
+            $meta = $this->userMetaFromUser($user);
+            Redis::set($this->userMetaCacheKey($user->id), json_encode($meta->toJson()));
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for user meta caching: ' . $e->getMessage());
+        }
     }
 
     private function userMetaFromUser(User $user): UserMeta
@@ -150,20 +155,34 @@ class UserService
 
     public function getUserMetaById(string $id): UserMeta | null
     {
-        $cached = Redis::get($this->userMetaCacheKey($id));
-        if ($cached != null) {
-            return $cached != "null" ? UserMeta::fromJson(json_decode($cached, true)) : null;
+        try {
+            $cached = Redis::get($this->userMetaCacheKey($id));
+            if ($cached != null) {
+                return $cached != "null" ? UserMeta::fromJson(json_decode($cached, true)) : null;
+            }
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for user meta caching: ' . $e->getMessage());
         }
 
         $user = $this->getUserById($id);
         if ($user == null) {
-            Redis::set($this->userMetaCacheKey($id), "null");
+            try {
+                Redis::set($this->userMetaCacheKey($id), "null");
+            } catch (\Exception $e) {
+                // Redis not available, skip caching
+            }
             return null;
         }
 
         $meta = $this->userMetaFromUser($user);
 
-        Redis::set($this->userMetaCacheKey($id), json_encode($meta->toJson()));
+        try {
+            Redis::set($this->userMetaCacheKey($id), json_encode($meta->toJson()));
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
+        
         return $meta;
     }
 
@@ -201,7 +220,7 @@ class UserService
     public function getUserByUsername(string $username): User | null
     {
         return User::query()
-            ->where("username", $username)
+            ->where("name", $username)
             ->first();
     }
 

@@ -42,7 +42,7 @@ Route::prefix("/auth")->group(function () {
 Route::prefix("/api")->group(function () {
     Route::prefix("/posts")->group(function () {
         Route::get("/", [PostController::class, 'getPosts']);
-        Route::post("/", [PostController::class, 'createPost'])->middleware("auth:sanctum");
+        Route::post("/", [PostController::class, 'createPost'])->middleware('auth:sanctum');
         Route::put("/{id}", [PostController::class, 'updatePost']);
         Route::delete("/{id}", [PostController::class, 'deletePost']);
 

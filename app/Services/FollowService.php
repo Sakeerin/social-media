@@ -19,9 +19,15 @@ class FollowService
     public function userFollowsUser(string $fromId, string $toId): string | null
     {
         $cacheKey = $this->followsCacheKey($fromId, $toId);
-        $cached = Redis::get($cacheKey);
-        if ($cached !== null) {
-            return $cached != "null" ? $cached : null;
+        
+        try {
+            $cached = Redis::get($cacheKey);
+            if ($cached !== null) {
+                return $cached != "null" ? $cached : null;
+            }
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for follow caching: ' . $e->getMessage());
         }
 
         $following = Follow::query()
@@ -30,7 +36,13 @@ class FollowService
             ->first();
 
         $value = $following != null ? $following->id : "null";
-        Redis::set($cacheKey, $value);
+        
+        try {
+            Redis::set($cacheKey, $value);
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
+        
         return $value;
     }
 
@@ -49,7 +61,11 @@ class FollowService
             "to_id" => $toId,
         ]);
 
-        Redis::set($this->followsCacheKey($fromId, $toId), $follow->id);
+        try {
+            Redis::set($this->followsCacheKey($fromId, $toId), $follow->id);
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
         return $follow;
     }
 
@@ -64,7 +80,11 @@ class FollowService
         }
 
         $follow->delete();
-        Redis::set($this->followsCacheKey($fromId, $follow->to_id), "null");
+        try {
+            Redis::set($this->followsCacheKey($fromId, $follow->to_id), "null");
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
         return true;
     }
 

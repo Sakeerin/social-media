@@ -25,7 +25,12 @@ class CommentService
             "content" => $content,
         ]);
 
-        Redis::incr($this->getCommentCountCacheKey($postId));
+        try {
+            Redis::incr($this->getCommentCountCacheKey($postId));
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for comment count caching: ' . $e->getMessage());
+        }
 
         return $this->getPostComments($postId);
     }
@@ -48,13 +53,24 @@ class CommentService
     public function getCommentCount(string $postId)
     {
         $cacheKey = $this->getCommentCountCacheKey($postId);
-        $cached = Redis::get($cacheKey);
-        if ($cached != null) {
-            return $cached;
+        
+        try {
+            $cached = Redis::get($cacheKey);
+            if ($cached != null) {
+                return $cached;
+            }
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for comment count retrieval: ' . $e->getMessage());
         }
 
         $count = Comment::where("post_id", $postId)->count();
-        Redis::set($cacheKey, $count);
+        
+        try {
+            Redis::set($cacheKey, $count);
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+        }
 
         return $count;
     }

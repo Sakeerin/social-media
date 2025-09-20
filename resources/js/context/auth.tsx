@@ -33,6 +33,8 @@ export const AuthProvider = (props: { children: ReactNode }) => {
 
     const login = async (email: string, password: string) => {
         const user = await authService.loginWithPassword(email, password);
+        console.log('User ', user);
+        
         setAuthenticatedUser(user);
 
         return user != null;
