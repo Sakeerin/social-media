@@ -12,7 +12,16 @@ class FollowService
     public function getFollowsFrom(string $userId)
     {
         return Follow::query()
+            ->with('following') // Eager load the 'to' user
             ->where("from_id", $userId)
+            ->get();
+    }
+
+    public function getFollowersOf(string $userId)
+    {
+        return Follow::query()
+            ->with('follower') // Eager load the 'from' user
+            ->where("to_id", $userId)
             ->get();
     }
 

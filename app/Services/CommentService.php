@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Responses\CommentResponse;
 use App\Models\Comment;
@@ -19,20 +20,22 @@ class CommentService
 
     public function createComment(string $userId, string $postId, string $content)
     {
-        Comment::create([
-            "user_id" => $userId,
-            "post_id" => $postId,
-            "content" => $content,
-        ]);
+        return DB::transaction(function () use ($userId, $postId, $content) {
+            Comment::create([
+                "user_id" => $userId,
+                "post_id" => $postId,
+                "content" => $content,
+            ]);
 
-        try {
-            Redis::incr($this->getCommentCountCacheKey($postId));
-        } catch (\Exception $e) {
-            // Redis not available, skip caching
-            \Log::warning('Redis not available for comment count caching: ' . $e->getMessage());
-        }
+            try {
+                Redis::incr($this->getCommentCountCacheKey($postId));
+            } catch (\Exception $e) {
+                // Redis not available, skip caching
+                \Log::warning('Redis not available for comment count caching: ' . $e->getMessage());
+            }
 
-        return $this->getPostComments($postId);
+            return $this->getPostComments($postId);
+        });
     }
 
     public function getPostComments(string $postId)
@@ -77,10 +80,10 @@ class CommentService
 
     public function updateComment(string $userId, string $commentId, string $content): Comment | null
     {
-        $comment = Comment::find([
-            "user_id" => $userId,
-            "id" => $commentId,
-        ])->first();
+        $comment = Comment::query()
+            ->where("user_id", $userId)
+            ->where("id", $commentId)
+            ->first();
 
         if ($comment == null) {
             return null;
@@ -93,16 +96,26 @@ class CommentService
 
     public function deleteComment(string $userId, string $commentId): bool
     {
-        $comment = Comment::find([
-            "user_id" => $userId,
-            "id" => $commentId,
-        ])->first();
+        $comment = Comment::query()
+            ->where("user_id", $userId)
+            ->where("id", $commentId)
+            ->first();
 
         if ($comment == null) {
             return false;
         }
 
+        $postId = $comment->post_id; // Store before delete
         $comment->delete();
+
+        // Decrement cache count
+        try {
+            Redis::decr($this->getCommentCountCacheKey($postId));
+        } catch (\Exception $e) {
+            // Redis not available, skip caching
+            \Log::warning('Redis not available for comment count decrement: ' . $e->getMessage());
+        }
+
         return true;
     }
 

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
+use App\Http\Resources\CommentResource;
 use App\Services\CommentService;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController
@@ -14,6 +16,8 @@ class CommentController
 
     public function createComment(CreateCommentRequest $req)
     {
+        $this->authorize('create', Comment::class);
+
         $validated = $req->validated();
         return $this->commentService->createComment(
             userId: Auth::id(),
@@ -29,33 +33,21 @@ class CommentController
 
     public function updateComment(UpdateCommentRequest $req, string $id)
     {
-        $validated = $req->validated();
-        $comment = $this->commentService->updateComment(
-            userId: Auth::id(),
-            commentId: $id,
-            content: $validated["content"]
-        );
+        $comment = Comment::findOrFail($id);
+        $this->authorize('update', $comment);
 
-        if ($comment == null) {
-            return response()->json([
-                "error" => "This comment does not exist."
-            ], status: 404);
-        }
+        $comment->update($req->validated());
 
-        return $comment;
+        return new CommentResource($comment->load('user'));
     }
 
     public function deleteComment(string $id)
     {
-        if ($this->commentService->deleteComment(
-            userId: Auth::id(),
-            commentId: $id
-        )) {
-            return response()->noContent(status: 200);
-        } else {
-            return response()->json([
-                "error" => "This comment does not exist."
-            ], status: 404);
-        }
+        $comment = Comment::findOrFail($id);
+        $this->authorize('delete', $comment);
+
+        $comment->delete();
+
+        return response()->noContent(); // Defaults to 204
     }
 }

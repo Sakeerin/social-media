@@ -63,10 +63,10 @@ class PostService
 
     public function updatePost(string $userId, string $id, string $caption): Post | null
     {
-        $post = Post::find([
-            "id" => $id,
-            "user_id" => $userId,
-        ])->first();
+        $post = Post::query()
+            ->where("id", $id)
+            ->where("user_id", $userId)
+            ->first();
 
         if ($post == null) {
             return null;
