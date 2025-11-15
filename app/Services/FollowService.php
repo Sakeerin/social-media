@@ -16,6 +16,13 @@ class FollowService
             ->get();
     }
 
+    public function getFollowersOf(string $userId)
+    {
+        return Follow::query()
+            ->where("to_id", $userId)
+            ->get();
+    }
+
     public function userFollowsUser(string $fromId, string $toId): string | null
     {
         $cacheKey = $this->followsCacheKey($fromId, $toId);

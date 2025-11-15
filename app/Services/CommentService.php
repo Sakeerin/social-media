@@ -77,10 +77,10 @@ class CommentService
 
     public function updateComment(string $userId, string $commentId, string $content): Comment | null
     {
-        $comment = Comment::find([
-            "user_id" => $userId,
-            "id" => $commentId,
-        ])->first();
+        $comment = Comment::query()
+            ->where("user_id", $userId)
+            ->where("id", $commentId)
+            ->first();
 
         if ($comment == null) {
             return null;
@@ -93,10 +93,10 @@ class CommentService
 
     public function deleteComment(string $userId, string $commentId): bool
     {
-        $comment = Comment::find([
-            "user_id" => $userId,
-            "id" => $commentId,
-        ])->first();
+        $comment = Comment::query()
+            ->where("user_id", $userId)
+            ->where("id", $commentId)
+            ->first();
 
         if ($comment == null) {
             return false;
