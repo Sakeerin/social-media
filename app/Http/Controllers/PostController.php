@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,19 +22,16 @@ class PostController
 
     public function getPost(string $id)
     {
-        $post = Post::find($id);
+        $post = Post::with('user')->withCount(['likes', 'comments'])->findOrFail($id);
+        $this->authorize('view', $post);
 
-        if ($post == null) {
-            return response()->json([
-                "error" => "Post not found"
-            ], status: 404);
-        }
-
-        return response()->json($post);
+        return new PostResource($post);
     }
 
     public function createPost(CreatePostRequest $req)
     {
+        $this->authorize('create', Post::class);
+
         $validated = $req->validated();
         $caption = $validated["caption"];
 
@@ -50,33 +48,21 @@ class PostController
 
     public function updatePost(UpdatePostRequest $req, string $id)
     {
-        $validated = $req->validated();
-        $post = $this->postService->updatePost(
-            userId: Auth::id(),
-            id: $id,
-            caption: $validated["caption"]
-        );
+        $post = Post::findOrFail($id);
+        $this->authorize('update', $post);
 
-        if ($post == null) {
-            return response()->json([
-                "error" => "Post not found or you don't have permission to update it"
-            ], status: 404);
-        }
+        $post->update($req->validated());
 
-        return response()->json($post);
+        return new PostResource($post->load('user')->loadCount(['likes', 'comments']));
     }
 
     public function deletePost(string $id)
     {
-        if ($this->postService->deletePost(
-            userId: Auth::id(),
-            postId: $id
-        )) {
-            return response()->noContent(status: 200);
-        } else {
-            return response()->json([
-                "error" => "Post not found or you don't have permission to delete it"
-            ], status: 404);
-        }
+        $post = Post::findOrFail($id);
+        $this->authorize('delete', $post);
+
+        $post->delete();
+
+        return response()->noContent(); // Defaults to 204
     }
 }
